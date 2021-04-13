@@ -11,9 +11,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // open the database connection
 let db = new sqlite3.Database('twitter.db');
 
+// create database table if doesn't exist
 db.run('CREATE TABLE IF NOT EXISTS tweets (id INTEGER PRIMARY KEY, username TEXT, tweet TEXT, created_on TEXT, retweet_count INTEGER, favorite_count INTEGER)');
 
 let client = new Twitter({
+    // You can use the below keys which will be revoked once project reviewed
     consumer_key: 'yGRbR4sGdD5ZDJYjVzrQkhsDR',
     consumer_secret: 'L5zTxOtsMtrYLzSawJ0RoFHUlrHa7qLCFwKAss64EdHS5PWsR0',
     access_token_key: '245015989-K6xJ7PYrit59mwyJRp9H0264LrvpPNxJFhmMrCY0',
@@ -21,11 +23,13 @@ let client = new Twitter({
 });
 
 let params = {
+    // Search Hashtag can be changed here
     q: '#liveperson',
-    result_type: "recent",
+    result_type: "popular",
     count: 100
 };
-
+// Looping twitter response and insert to the database table
+// Using Twitter ID as primary key, if exist will give an error and skip
 client.get('search/tweets', params).catch(function (err) {
     console.log('caught error', err)
 }).then(function (result) {
@@ -38,8 +42,9 @@ client.get('search/tweets', params).catch(function (err) {
 });
 
 //Listen for get request on root url. eg. http://localhost:3000
-app.listen(port, () => console.log(`Hello Chris app listening on port ${port}!`))
+app.listen(port, () => console.log(`Hello Chris please open this: http://localhost:3000`))
 
+//Select and render data
 app.get('/', function (req, res) {
     db.all("SELECT * FROM tweets", function (err, rows) {
         res.render('index.ejs', {
